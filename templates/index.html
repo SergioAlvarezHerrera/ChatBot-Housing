@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot de Predicción de Precios</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url("/static/cars.png");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .chat-box {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-bottom: 10px;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .message.chatbot {
+            background-color: #f1f1f1;
+            text-align: left;
+        }
+
+        .message.user {
+            background-color: #1e90ff;
+            color: white;
+            text-align: right;
+            margin-left: auto;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .send-btn {
+            padding: 10px;
+            background-color: #1e90ff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .send-btn:hover {
+            background-color: #0066cc;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h1>Chatbot de Predicción de Precios</h1>
+        <div id="chat-box" class="chat-box">
+            <!-- Los mensajes aparecerán aquí -->
+        </div>
+        <div class="input-container">
+            <input id="user-input" type="text" placeholder="Escribe tu respuesta...">
+            <button id="send-btn" class="send-btn">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        let chatBox = document.getElementById("chat-box");
+        let userInput = document.getElementById("user-input");
+        let sendBtn = document.getElementById("send-btn");
+
+        let userData = {}; // Guardar las respuestas del usuario
+
+        // Las preguntas que el chatbot hará al usuario
+        let questions = [
+            "¿Cuál es el área de la vivienda (en metros cuadrados)?",
+            "¿Cuántas habitaciones tiene?",
+            "¿Cuántos baños tiene?",
+            "¿Cuántas plantas tiene?",
+            "¿Está en una calle principal? (Sí/No)",
+            "¿Tiene habitación para invitados? (Sí/No)",
+            "¿Tiene sótano? (Sí/No)",
+            "¿Tiene calentador de agua? (Sí/No)",
+            "¿Tiene aire acondicionado? (Sí/No)",
+            "¿Cuántas plazas de aparcamiento tiene?",
+            "¿Está en una zona preferida? (Sí/No)",
+            "¿Está amueblado? (Sí/No)"
+        ];
+
+        let currentQuestionIndex = 0;
+
+        // Función para simular la escritura de la pregunta
+        function typeQuestion(text, index, callback) {
+            let i = 0;
+            let messageElement = document.createElement('div');
+            messageElement.classList.add('message', 'chatbot');
+            chatBox.appendChild(messageElement);
+
+            let interval = setInterval(() => {
+                messageElement.textContent += text[i];
+                scrollToBottom();
+                i++;
+                if (i >= text.length) {
+                    clearInterval(interval);
+                    if (callback) callback(); // Llamar al callback cuando termine
+                }
+            }, 30); // Cambia la velocidad de la escritura (100ms por letra)
+        }
+
+        // Mostrar la primera pregunta
+        function askQuestion() {
+            if (currentQuestionIndex < questions.length) {
+                typeQuestion(questions[currentQuestionIndex], currentQuestionIndex, () => {
+                    userInput.value = ""; // Limpiar la entrada de usuario
+                    userInput.focus(); // Foco en el input
+                });
+            } else {
+                // Cuando se termina, se hace la predicción
+                fetchPrediction();
+            }
+        }
+
+        // Procesar la respuesta del usuario
+        sendBtn.onclick = async function() {
+            let answer = userInput.value.trim();
+
+            if (answer) {
+                // Guardar la respuesta en el objeto de datos
+                userData[questions[currentQuestionIndex]] = answer;
+
+                // Mostrar la respuesta del usuario
+                let userMessage = document.createElement('div');
+                userMessage.classList.add('message', 'user');
+                userMessage.textContent = answer;
+                chatBox.appendChild(userMessage);
+
+                // Asegurarse de que el chat se desplace hacia abajo
+                scrollToBottom();
+
+                // Pasar a la siguiente pregunta
+                currentQuestionIndex++;
+                askQuestion();
+            } else {
+                alert("Por favor, escribe una respuesta.");
+            }
+        };
+
+        // Función para hacer la predicción y mostrar el resultado
+        async function fetchPrediction() {
+            // Recopilar los datos del usuario en el formato correcto
+            let formData = {
+                area: Number(userData[questions[0]]),
+                bedrooms: Number(userData[questions[1]]),
+                bathrooms: Number(userData[questions[2]]),
+                stories: Number(userData[questions[3]]),
+                mainroad: userData[questions[4]].toLowerCase() === "sí" ? 1 : 0,
+                guestroom: userData[questions[5]].toLowerCase() === "sí" ? 1 : 0,
+                basement: userData[questions[6]].toLowerCase() === "sí" ? 1 : 0,
+                hotwaterheating: userData[questions[7]].toLowerCase() === "sí" ? 1 : 0,
+                airconditioning: userData[questions[8]].toLowerCase() === "sí" ? 1 : 0,
+                parking: Number(userData[questions[9]]),
+                prefarea: userData[questions[10]].toLowerCase() === "sí" ? 1 : 0,
+                furnished: userData[questions[11]].toLowerCase() === "sí" ? 1 : 0
+            };
+
+            let response = await fetch("/predict", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData)
+            });
+
+            let result = await response.json();
+
+            // Mostrar el precio predicho
+            let chatbotMessage = document.createElement('div');
+            chatbotMessage.classList.add('message', 'chatbot');
+            if (result.predicted_price) {
+                chatbotMessage.textContent = `El precio predicho es: ${result.predicted_price}`;
+            } else {
+                chatbotMessage.textContent = "Error en la predicción.";
+            }
+            chatBox.appendChild(chatbotMessage);
+
+            // Asegurarse de que la barra de desplazamiento se mantenga al final
+            scrollToBottom();
+        }
+
+        // Función para desplazar el chat hacia abajo
+        function scrollToBottom() {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Iniciar el chatbot
+        askQuestion();
+    </script>
+</body>
+</html>
