@@ -1,7 +1,3 @@
----
-markmap:
-  colorFreezeLevel: 2
----
 
 # Chatbot de Predicción de Precios de Viviendas
 
@@ -10,6 +6,9 @@ markmap:
 - Desarrollado con **Flask** en el backend y **JavaScript** en el frontend.
 - Utiliza **Machine Learning** para la predicción de precios de viviendas.
 - En lugar de un formulario, el usuario responde preguntas secuenciales en un chat.
+
+## Vista del ChatBot
+!(static/interfaz.png)
 
 ## Tecnologías Utilizadas
 - **Flask** → Backend y API REST.
