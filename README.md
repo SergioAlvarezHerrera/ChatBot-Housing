@@ -8,7 +8,7 @@
 - En lugar de un formulario, el usuario responde preguntas secuenciales en un chat.
 
 ## Vista del ChatBot
-!(static/interfaz.png)
+![Vista general](static/interfaz.png)
 
 ## Tecnologías Utilizadas
 - **Flask** → Backend y API REST.
