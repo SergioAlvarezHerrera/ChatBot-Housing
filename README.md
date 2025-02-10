@@ -21,8 +21,8 @@
 
 ### 1. Clonar el Repositorio
 ```bash
-git clone https://github.com/usuario/chatbot-prediccion-precios.git
-cd chatbot-prediccion-precios
+git clone https://github.com/usuario/ChatBot-Housing.git
+cd ChatBot-Housing
 ```
 ### 2. Crear y Activar un Entorno Virtual
 ```bash
